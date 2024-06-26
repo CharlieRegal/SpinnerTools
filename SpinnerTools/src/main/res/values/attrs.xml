@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Spinner">
+        <attr name="DisplayMember" format="string" />
+        <attr name="Searchable" format="boolean"/>
+        <attr name="Mode" format="enum">
+            <enum name="Sheet" value="0"/>
+            <enum name="Dropdown" value="1"/>
+        </attr>
+        <attr name="Title" format="string"/>
+        <attr name="DismissWhenSelected" format="boolean"/>
+    </declare-styleable>
+</resources>

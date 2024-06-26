@@ -10,8 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.Gson
+import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
+import java.lang.reflect.Modifier
 
 internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?) {
 
@@ -53,7 +56,8 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
                 filteredItems.clear()
                 filteredItems.addAll(items)
             } else {
-                val fil = items.filter { x -> x.toString().lowercase().contains(it.toString().lowercase()) }
+
+                val fil = items.filter { x -> reflectionToString(x).lowercase().contains(it.toString().lowercase()) }
                 filteredItems.clear()
                 filteredItems.addAll(fil)
             }
@@ -98,6 +102,22 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     fun setOnItemClickListener(onClickListener: OnSearchSpinnerClickListener<T>) {
         this.onSearchSpinnerClickListener = onClickListener
+    }
+
+    fun reflectionToString(obj: Any?): String {
+        if(obj == null) {
+            return "null"
+        }
+        val s = mutableListOf<String>()
+        var clazz: Class<in Any>? = obj.javaClass
+        while (clazz != null) {
+            for (prop in clazz.declaredFields.filterNot { Modifier.isStatic(it.modifiers) }) {
+                prop.isAccessible = true
+                s += "${prop.name}=" + prop.get(obj)?.toString()?.trim()
+            }
+            clazz = clazz.superclass
+        }
+        return "${obj.javaClass.simpleName}=[${s.joinToString(", ")}]"
     }
 
     interface OnSearchSpinnerClickListener<T> {

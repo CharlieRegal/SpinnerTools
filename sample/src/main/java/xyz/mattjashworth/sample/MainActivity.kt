@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         }
         val rootView = findViewById<View>(R.id.main)
 
-        val ex = ExampleObject("Test", "Should Be 5")
+        val ex = ExampleObject("Test", "Should Be Working")
         ex.ID = 5
 
         val data = arrayListOf(

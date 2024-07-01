@@ -2,40 +2,46 @@ package xyz.mattjashworth.spinnertools.sheet
 
 import android.content.Context
 import android.content.res.TypedArray
-import android.graphics.Color
 import android.os.Build
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
-import androidx.annotation.AttrRes
+import android.widget.PopupWindow
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
+import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
 
-
-
-@RequiresApi(Build.VERSION_CODES.N_MR1)
 class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
 
     private lateinit var selectedItem: EditText
     private var card: CardView
     private var items = ArrayList<T>()
 
-    private var SelectedObject: T? = null
+    private var selectedObject: T? = null
 
-    private var DisplayMember: String? = null
-    private var Title = "Select Item"
-    private var SelectedMode: Mode = Mode.Sheet
-    private var Searchable = false
-    private var DismissWhenSelected = false
+    private var displayMember: String? = null
+    private var title = "Select Item"
+    private var searchable = false
+    private var dismissWhenSelected = false
 
-    private enum class Mode {Sheet, Dropdown}
+    private lateinit var textInputLayout: TextInputLayout
+
     private var type: Any? = null
 
     private var onItemSelectedListener: OnItemSelectedListener<T>? = null
@@ -45,25 +51,27 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         val root = inflate(context, R.layout.spinner, this)
 
         val ta: TypedArray = getContext().obtainStyledAttributes(attributeSet, R.styleable.Spinner)
-        DisplayMember = ta.getString(R.styleable.Spinner_DisplayMember)!!
-        SelectedMode = Mode.values()[ta.getInt(R.styleable.Spinner_Mode, 0)]
-        Title = ta.getString(R.styleable.Spinner_Title)!!
-        Searchable = ta.getBoolean(R.styleable.Spinner_Searchable, false)
-        DismissWhenSelected = ta.getBoolean(R.styleable.Spinner_DismissWhenSelected, false)
+        displayMember = ta.getString(R.styleable.Spinner_DisplayMember) ?: ""
+        title = ta.getString(R.styleable.Spinner_Title) ?: ""
+        searchable = ta.getBoolean(R.styleable.Spinner_Searchable, false)
+        dismissWhenSelected = ta.getBoolean(R.styleable.Spinner_DismissWhenSelected, false)
+        ta.recycle()
+
+
 
         selectedItem = findViewById<EditText>(R.id.tv_spinner_selected)
-        val layout = findViewById<TextInputLayout>(R.id.tIL)
+        textInputLayout = findViewById<TextInputLayout>(R.id.tIL)
         card = findViewById(R.id.card_spinner)
-        layout.hint = Title
+        textInputLayout.hint = title
 
         setChildListener(rootView, OnClickListener {
-            val s = SpinnerSheet<T>(context, items, Title, DisplayMember)
-            if (SelectedObject != null)
-                s.setSelectedObject(SelectedObject!!)
+            val s = SpinnerSheet<T>(context, items, title, displayMember, searchable)
+            if (selectedObject != null)
+                s.setSelectedObject(selectedObject!!)
             s.setOnItemClickListener(object : SpinnerSheet.OnSearchSpinnerClickListener<T> {
                 override fun onClick(position: Int, model: T) {
 
-                    if (DismissWhenSelected)
+                    if (dismissWhenSelected)
                         s.dismiss()
 
                     val gson = Gson()
@@ -72,6 +80,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
                     if (model is String) {
 
                         selectedItem.setText(model)
+
                     } else {
 
                         val obj = JsonParser.parseString(jsonStr).asJsonObject
@@ -81,14 +90,16 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
                         var res = ""
 
-                        if (!DisplayMember.isNullOrEmpty()) res = obj.get(DisplayMember).asString
+                        if (!displayMember.isNullOrEmpty()) res =
+                            obj.get(displayMember).asString
                         else res = obj.get(keys.max()).asString
 
-                        SelectedObject = model
+                        selectedObject = model
                         selectedItem.setText(res)
 
-                        onItemSelectedListener?.onItemSelected(model)
                     }
+
+                    onItemSelectedListener?.onItemSelected(model)
                 }
 
             })
@@ -122,11 +133,11 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     }
 
     fun setDisplayMember(id: String) {
-        DisplayMember = id
+        displayMember = id
     }
 
     fun setTitle(title: String) {
-        Title = title
+        this.title = title
     }
 
 }

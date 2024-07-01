@@ -12,7 +12,6 @@
         android:id="@+id/card_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="10dp"
         android:background="@android:color/transparent"
         app:contentPadding="10dp"
         app:cardUseCompatPadding="true"

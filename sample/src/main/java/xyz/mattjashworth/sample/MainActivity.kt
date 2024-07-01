@@ -60,9 +60,9 @@ class MainActivity : AppCompatActivity() {
             )
 
 
-        val s = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
-        s.setItems(data)
-        s.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
+        val searchSpinner = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
+        searchSpinner.setItems(data)
+        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
             override fun onItemSelected(model: ExampleObject) {
                 Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
             }

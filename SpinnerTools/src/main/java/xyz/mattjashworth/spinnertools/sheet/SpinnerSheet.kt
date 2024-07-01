@@ -2,6 +2,7 @@ package xyz.mattjashworth.spinnertools.sheet
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
@@ -16,7 +17,7 @@ import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
 import java.lang.reflect.Modifier
 
-internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?) {
+internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?, searchable: Boolean) {
 
 
     private var onSearchSpinnerClickListener: OnSearchSpinnerClickListener<T>? = null
@@ -35,6 +36,7 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         val spinnerSheetView = layoutInflater.inflate(R.layout.bottomsheet_spinner, null)
 
         val search = spinnerSheetView.findViewById<EditText>(R.id.et_bottomsheet_search)
+        if (!searchable) search.visibility = View.GONE
         val sheetTitle = spinnerSheetView.findViewById<TextView>(R.id.tv_sheet_title)
         sheetTitle.text = title
 

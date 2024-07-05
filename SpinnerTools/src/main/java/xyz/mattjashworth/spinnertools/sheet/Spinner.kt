@@ -40,7 +40,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var searchable = false
     private var dismissWhenSelected = false
 
-    private lateinit var textInputLayout: TextInputLayout
+    private  var textInputLayout: TextInputLayout
 
     private var type: Any? = null
 
@@ -80,6 +80,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
                     if (model is String) {
 
                         selectedItem.setText(model)
+                        selectedObject = model
 
                     } else {
 
@@ -106,6 +107,34 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         })
 
 
+    }
+
+    fun setSelectedItem(obj: T) {
+        val gson = Gson()
+        val jsonStr = gson.toJson(obj)
+
+        if (obj is String) {
+
+            selectedItem.setText(obj)
+            selectedObject = obj
+
+        } else {
+
+            val jsonObj = JsonParser.parseString(jsonStr).asJsonObject
+
+            val map = jsonObj.asMap()
+            val keys = map.keys
+
+            var res = ""
+
+            if (!displayMember.isNullOrEmpty()) res =
+                jsonObj.get(displayMember).asString
+            else res = jsonObj.get(keys.max()).asString
+
+            selectedObject = obj
+            selectedItem.setText(res)
+
+        }
     }
 
     fun setOnItemSelectedListener(onItemSelectedListener: OnItemSelectedListener<T>) {

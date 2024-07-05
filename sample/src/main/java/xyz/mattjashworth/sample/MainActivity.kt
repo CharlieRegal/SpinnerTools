@@ -69,6 +69,8 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+        searchSpinner.setSelectedItem(data[4])
+
 
 
 

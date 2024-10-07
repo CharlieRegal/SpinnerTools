@@ -1,26 +1,17 @@
 package xyz.mattjashworth.spinnertools.sheet
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.TypedArray
-import android.os.Build
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.PopupWindow
-import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.core.graphics.toColor
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.JsonParser
@@ -40,6 +31,11 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var searchable = false
     private var dismissWhenSelected = false
 
+    //colors
+    private var backgroundColor: Int? = null
+    private var hintTextColor: Int? = null
+    private var textColor: Int? = null
+
     private  var textInputLayout: TextInputLayout
 
     private var type: Any? = null
@@ -55,6 +51,10 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         title = ta.getString(R.styleable.Spinner_Title) ?: ""
         searchable = ta.getBoolean(R.styleable.Spinner_Searchable, false)
         dismissWhenSelected = ta.getBoolean(R.styleable.Spinner_DismissWhenSelected, false)
+
+        backgroundColor = ta.getColor(R.styleable.Spinner_backgroundColor, ContextCompat.getColor(context, android.R.color.white))
+        hintTextColor = ta.getColor(R.styleable.Spinner_hintTextColor, ContextCompat.getColor(context, android.R.color.black))
+        textColor = ta.getColor(R.styleable.Spinner_textColor, ContextCompat.getColor(context, android.R.color.black))
         ta.recycle()
 
 
@@ -62,7 +62,11 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         selectedItem = findViewById<EditText>(R.id.tv_spinner_selected)
         textInputLayout = findViewById<TextInputLayout>(R.id.tIL)
         card = findViewById(R.id.card_spinner)
+        card.setCardBackgroundColor(backgroundColor ?: context.getColor(android.R.color.white))
         textInputLayout.hint = title
+        textInputLayout.hintTextColor = ColorStateList.valueOf(hintTextColor ?: R.color.gray_600)
+        textInputLayout.defaultHintTextColor = ColorStateList.valueOf(hintTextColor ?: R.color.gray_600)
+        selectedItem.setTextColor(textColor ?: context.getColor(android.R.color.black))
 
         setChildListener(rootView, OnClickListener {
             val s = SpinnerSheet<T>(context, items, title, displayMember, searchable)

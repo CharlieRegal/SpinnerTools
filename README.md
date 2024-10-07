@@ -59,6 +59,9 @@ Below are all the YesNoButton's xml attributes. You cannot currently set these p
     app:Title="Select Person"
     app:Searchable="true"
     app:DisplayMember="name"
+    app:backgroundColor="@color/purple_500"
+    app:textColor="@color/white"
+    app:hintTextColor="@color/red"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />

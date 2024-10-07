@@ -5,5 +5,8 @@
         <attr name="Searchable" format="boolean"/>
         <attr name="Title" format="string"/>
         <attr name="DismissWhenSelected" format="boolean"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="hintTextColor" format="color"/>
+        <attr name="textColor" format="color"/>
     </declare-styleable>
 </resources>

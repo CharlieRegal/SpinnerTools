@@ -171,6 +171,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
     fun setTitle(title: String) {
         this.title = title
+        this.textInputLayout.hint = title
     }
 
 }

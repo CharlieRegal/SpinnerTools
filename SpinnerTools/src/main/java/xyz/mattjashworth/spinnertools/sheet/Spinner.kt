@@ -141,6 +141,10 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         }
     }
 
+    fun getSelectedItem(): T {
+        return selectedObject
+    }
+
     fun setOnItemSelectedListener(onItemSelectedListener: OnItemSelectedListener<T>) {
         this.onItemSelectedListener = onItemSelectedListener
     }

@@ -141,7 +141,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         }
     }
 
-    fun getSelectedItem(): T {
+    fun getSelectedItem(): T? {
         return selectedObject
     }
 

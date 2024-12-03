@@ -1,23 +1,30 @@
 package xyz.mattjashworth.spinnertools.sheet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColor
+import androidx.core.view.marginTop
+import androidx.core.view.setPadding
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
 
+@SuppressLint("PrivateResource")
 class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
 
     private lateinit var selectedItem: EditText
@@ -30,6 +37,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var title = "Select Item"
     private var searchable = false
     private var dismissWhenSelected = false
+
 
     //colors
     private var backgroundColor: Int? = null
@@ -51,16 +59,34 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         title = ta.getString(R.styleable.Spinner_Title) ?: ""
         searchable = ta.getBoolean(R.styleable.Spinner_Searchable, false)
         dismissWhenSelected = ta.getBoolean(R.styleable.Spinner_DismissWhenSelected, false)
-
         backgroundColor = ta.getColor(R.styleable.Spinner_backgroundColor, ContextCompat.getColor(context, android.R.color.white))
         hintTextColor = ta.getColor(R.styleable.Spinner_hintTextColor, ContextCompat.getColor(context, android.R.color.black))
         textColor = ta.getColor(R.styleable.Spinner_textColor, ContextCompat.getColor(context, android.R.color.black))
-        ta.recycle()
 
+        val hintBottomMargin = ta.getDimension(R.styleable.Spinner_hint_bottomMargin, 0f)
+
+        ta.recycle()
 
 
         selectedItem = findViewById<EditText>(R.id.tv_spinner_selected)
         textInputLayout = findViewById<TextInputLayout>(R.id.tIL)
+        textInputLayout.addOnEditTextAttachedListener {
+            it.editText?.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    if (!s.isNullOrEmpty() && textInputLayout.isHintAnimationEnabled) {
+                        selectedItem.setPadding(0, hintBottomMargin.toInt(), 0, 0)
+                    } else {
+                        selectedItem.setPadding(0, 0, 0, 0)
+                    }
+                }
+
+            })
+        }
         card = findViewById(R.id.card_spinner)
         card.setCardBackgroundColor(backgroundColor ?: context.getColor(android.R.color.white))
         textInputLayout.hint = title

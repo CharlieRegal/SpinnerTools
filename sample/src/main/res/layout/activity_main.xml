@@ -15,13 +15,14 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         app:DismissWhenSelected="true"
-        app:Title="Select Person"
-        app:Searchable="true"
         app:DisplayMember="name"
+        app:Searchable="true"
+        app:Title="Select Person"
         app:backgroundColor="@color/purple_500"
-        app:textColor="@color/white"
         app:hintTextColor="@color/red"
+        app:hint_bottomMargin="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:textColor="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

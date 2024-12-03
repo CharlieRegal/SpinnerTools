@@ -8,5 +8,9 @@
         <attr name="backgroundColor" format="color"/>
         <attr name="hintTextColor" format="color"/>
         <attr name="textColor" format="color"/>
+
+        <attr name="hint_bottomMargin" format="dimension" />
+
     </declare-styleable>
+
 </resources>

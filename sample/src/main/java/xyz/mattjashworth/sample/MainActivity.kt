@@ -8,6 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.mattjashworth.spinnertools.sheet.Spinner
 
 class MainActivity : AppCompatActivity() {
@@ -60,14 +64,21 @@ class MainActivity : AppCompatActivity() {
             )
 
 
-        val searchSpinner = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
-        searchSpinner.setItems(data)
-        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
-            override fun onItemSelected(model: ExampleObject) {
-                Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
+        val searchSpinner = findViewById<Spinner<String>>(R.id.app_spinner)
+        searchSpinner.setItems(arrayListOf("One", "Two", "Three", "Four", "Five", "Six"))
+        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<String> {
+            override fun onItemSelected(model: String) {
+                Snackbar.make(rootView, model, Snackbar.LENGTH_LONG).show()
             }
 
         })
+
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(10000)
+            runOnUiThread {
+                searchSpinner.setItems(arrayListOf("One"))
+            }
+        }
 
 
 

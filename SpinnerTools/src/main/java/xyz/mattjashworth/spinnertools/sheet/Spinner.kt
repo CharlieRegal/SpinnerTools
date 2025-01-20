@@ -95,7 +95,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         selectedItem.setTextColor(textColor ?: context.getColor(android.R.color.black))
 
         setChildListener(rootView, OnClickListener {
-            val s = SpinnerSheet<T>(context, items, title, displayMember, searchable)
+            val s = SpinnerSheet<T>(context, this.items, title, displayMember, searchable)
             if (selectedObject != null)
                 s.setSelectedObject(selectedObject!!)
             s.setOnItemClickListener(object : SpinnerSheet.OnSearchSpinnerClickListener<T> {

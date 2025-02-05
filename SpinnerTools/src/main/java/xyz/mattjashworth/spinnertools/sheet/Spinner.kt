@@ -148,7 +148,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedItem.setText(obj)
             selectedObject = obj
 
-        } else {
+        } else if (obj != null) {
 
             val jsonObj = JsonParser.parseString(jsonStr).asJsonObject
 
@@ -164,6 +164,9 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedObject = obj
             selectedItem.setText(res)
 
+        } else if (obj == null) {
+            selectedObject = null
+            selectedItem.clear()
         }
     }
 

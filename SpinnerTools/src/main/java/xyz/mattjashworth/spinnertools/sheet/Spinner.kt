@@ -166,7 +166,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
         } else if (obj == null) {
             selectedObject = null
-            selectedItem.clear()
+            selectedItem.text.clear()
         }
     }
 

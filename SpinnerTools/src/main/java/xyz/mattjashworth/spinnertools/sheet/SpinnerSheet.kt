@@ -15,12 +15,14 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
+import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 import java.lang.reflect.Modifier
 
-internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?, searchable: Boolean) {
+internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?, searchable: Boolean, mode: Mode) {
 
 
     private var onSearchSpinnerClickListener: OnSearchSpinnerClickListener<T>? = null
+    private var onSearchSpinnerMultiClickListener: OnSearchSpinnerMultiClickListener<T>? = null
 
     private lateinit var diag: BottomSheetDialog
     private lateinit var adapter: SearchSpinnerAdapter<T>
@@ -45,12 +47,16 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         val div = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         rcy.addItemDecoration(div)
 
-        adapter = SearchSpinnerAdapter<T>(context, filteredItems, displayMember)
+        adapter = SearchSpinnerAdapter<T>(mode, filteredItems, displayMember)
         adapter.setOnClickListener(object : SearchSpinnerAdapter.OnClickListener<T> {
             override fun onClick(position: Int, model: T) {
                 onSearchSpinnerClickListener?.onClick(position, model)
             }
-
+        })
+        adapter.setOnMultiSelectListener(object : SearchSpinnerAdapter.OnMultiSelectListener<T> {
+            override fun onMultiSelect( models: List<T>) {
+                onSearchSpinnerMultiClickListener?.onClick(models)
+            }
         })
 
         search.addTextChangedListener {
@@ -95,6 +101,10 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         adapter.setSelectedPosition(obj)
     }
 
+    fun setSelectedObject(obj: List<T>) {
+        adapter.setSelectedPosition(obj)
+    }
+
     fun calculatePeekHeight(itemCount: Int): Int {
 
         val peekH = itemCount * 55
@@ -104,6 +114,10 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     fun setOnItemClickListener(onClickListener: OnSearchSpinnerClickListener<T>) {
         this.onSearchSpinnerClickListener = onClickListener
+    }
+
+    fun setOnMultiClickListener(onClickListener: OnSearchSpinnerMultiClickListener<T>) {
+        this.onSearchSpinnerMultiClickListener = onClickListener
     }
 
     fun reflectionToString(obj: Any?): String {
@@ -124,5 +138,9 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     interface OnSearchSpinnerClickListener<T> {
         fun onClick(position: Int, model: T)
+    }
+
+    interface OnSearchSpinnerMultiClickListener<T> {
+        fun onClick(model: List<T>)
     }
 }

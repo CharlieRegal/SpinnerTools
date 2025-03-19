@@ -60,13 +60,34 @@ class MainActivity : AppCompatActivity() {
             )
 
 
-        val searchSpinner = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
-        searchSpinner.setItems(data)
-        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
-            override fun onItemSelected(model: ExampleObject) {
+        val multiSelectData = arrayListOf(
+            ExampleMultiSelect(0, "Matt"),
+            ExampleMultiSelect(1, "Charlie"),
+            ExampleMultiSelect(2, "Andrew"),
+            ExampleMultiSelect(3, "Robert"),
+            ExampleMultiSelect(4, "Stephen"),
+            ExampleMultiSelect(5, "Stuart"),
+            ExampleMultiSelect(6, "Alfie"),
+            ExampleMultiSelect(7, "Jamie"),
+            ExampleMultiSelect(8, "Zoe"),
+            ExampleMultiSelect(9, "Jenny"),
+            ExampleMultiSelect(10, "Lauren"),
+            ExampleMultiSelect(11, "Sam"),
+            ExampleMultiSelect(12, "Julie")
+        )
+
+
+        val searchSpinner = findViewById<Spinner<ExampleMultiSelect>>(R.id.app_spinner)
+        searchSpinner.setItems(multiSelectData)
+        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleMultiSelect> {
+            override fun onItemSelected(model: ExampleMultiSelect) {
                 Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
             }
-
+        })
+        searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleMultiSelect> {
+            override fun onItemSelected(models: List<ExampleMultiSelect>) {
+                Snackbar.make(rootView, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
+            }
         })
 
 

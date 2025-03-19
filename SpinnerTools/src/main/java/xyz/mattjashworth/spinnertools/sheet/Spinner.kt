@@ -146,7 +146,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             s.setOnMultiClickListener(object : SpinnerSheet.OnSearchSpinnerMultiClickListener<T> {
                 override fun onClick(model: List<T>) {
 
-                    if (model[0] is String) {
+                    if (model.isNotEmpty() && model[0] is String) {
 
                         val stringBuilder = StringBuilder()
 
@@ -161,6 +161,12 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
                     } else {
 
                         val stringBuilder = StringBuilder()
+
+                        if (model.isEmpty()) {
+                            selectedItem.text.clear()
+                            selectedObjects = null
+                            return
+                        }
 
                         model.forEachIndexed { index, t ->
 

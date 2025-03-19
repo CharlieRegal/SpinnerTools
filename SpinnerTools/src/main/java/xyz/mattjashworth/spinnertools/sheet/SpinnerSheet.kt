@@ -32,6 +32,10 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     init {
 
+        filteredItems = ArrayList(items.toList())
+        if (::adapter.isInitialized && adapter != null) {
+            adapter.notifyDataSetChanged()
+        }
 
         diag = BottomSheetDialog(context)
         val layoutInflater = LayoutInflater.from(context)

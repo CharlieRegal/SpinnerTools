@@ -102,7 +102,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         selectedItem.setTextColor(textColor ?: context.getColor(android.R.color.black))
 
         setChildListener(rootView, OnClickListener {
-            val s = SpinnerSheet<T>(context, items, title, displayMember, searchable, mode)
+            val s = SpinnerSheet<T>(context, this.items, title, displayMember, searchable, mode)
             when (mode) {
                 Mode.SINGLE -> if (selectedObject != null) s.setSelectedObject(selectedObject!!)
                 Mode.MULTI -> if (selectedObjects != null && selectedObjects!!.isNotEmpty()) s.setSelectedObject(selectedObjects!!)
@@ -206,7 +206,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedItem.setText(obj)
             selectedObject = obj
 
-        } else {
+        } else if (obj != null) {
 
             val jsonObj = JsonParser.parseString(jsonStr).asJsonObject
 
@@ -222,6 +222,9 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedObject = obj
             selectedItem.setText(res)
 
+        } else if (obj == null) {
+            selectedObject = null
+            selectedItem.text.clear()
         }
     }
 

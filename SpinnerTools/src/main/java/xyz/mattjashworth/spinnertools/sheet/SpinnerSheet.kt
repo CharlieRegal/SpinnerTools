@@ -83,7 +83,7 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         rcy.layoutManager = llm
         rcy.adapter = adapter
 
-        diag.behavior.peekHeight = calculatePeekHeight(items.count())
+        diag.behavior.peekHeight = calculatePeekHeightPercentage(context, items.count())
 
         diag.behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         diag.behavior.isDraggable = true

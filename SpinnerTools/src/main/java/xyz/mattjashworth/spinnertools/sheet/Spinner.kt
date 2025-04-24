@@ -127,6 +127,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
                         selectedObject = model
                         selectedItem.setText(res)
+                        selectedItem.text.clear()
 
                     }
 
@@ -193,6 +194,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
     fun setItems(_items: ArrayList<T>) {
         items = _items
+
     }
 
     fun setDisplayMember(id: String) {

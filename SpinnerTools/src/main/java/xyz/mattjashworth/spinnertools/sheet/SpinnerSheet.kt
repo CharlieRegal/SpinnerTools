@@ -1,8 +1,10 @@
 package xyz.mattjashworth.spinnertools.sheet
 
 import android.content.Context
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
@@ -75,7 +77,7 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         rcy.layoutManager = llm
         rcy.adapter = adapter
 
-        diag.behavior.peekHeight = calculatePeekHeight(items.count())
+        diag.behavior.peekHeight = calculatePeekHeightPercentage(context, items.count())
 
         diag.behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         diag.behavior.isDraggable = true
@@ -97,6 +99,17 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     fun setSelectedObject(obj: T) {
         adapter.setSelectedPosition(obj)
+    }
+
+    private fun calculatePeekHeightPercentage(context: Context, itemCount: Int, desiredPercentage: Float = 0.75f): Int {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val screenHeight = displayMetrics.heightPixels
+        val calculatedHeight = (screenHeight * desiredPercentage).toInt()
+
+        val itemBasedHeight = itemCount * 55
+        return calculatedHeight
     }
 
     fun calculatePeekHeight(itemCount: Int): Int {

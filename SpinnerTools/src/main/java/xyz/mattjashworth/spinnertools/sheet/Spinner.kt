@@ -136,7 +136,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
                         selectedObject = model
                         selectedItem.setText(res)
-                        selectedItem.text.clear()
+                        //selectedItem.text.clear()
 
                     }
 

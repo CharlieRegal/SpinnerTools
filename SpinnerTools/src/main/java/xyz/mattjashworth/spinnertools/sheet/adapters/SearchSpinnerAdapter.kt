@@ -9,13 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
+import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
-internal class SearchSpinnerAdapter<T>(private val context: Context, items: ArrayList<T>, displayMember: String?): RecyclerView.Adapter<SearchSpinnerAdapter.ViewHolder>() {
+internal class SearchSpinnerAdapter<T>(private val mode: Mode, items: ArrayList<T>, displayMember: String?): RecyclerView.Adapter<SearchSpinnerAdapter.ViewHolder>() {
 
     private val spinnerItems: ArrayList<T>
-    private var selectedPosition = -1 // no selection by default
+    private var selectedPosition: Int = -1
+    private var selectedPositions: MutableList<T> = mutableListOf()
 
     private var onClickListener: OnClickListener<T>? = null
+    private var onMultiSelectListener: OnMultiSelectListener<T>? = null
 
     private val member: String?
 
@@ -61,20 +64,42 @@ internal class SearchSpinnerAdapter<T>(private val context: Context, items: Arra
         }
 
         holder.itemView.setOnClickListener {
-            this.selectedPosition = holder.adapterPosition
-            if (onClickListener != null) {
-                onClickListener!!.onClick(position, model)
+
+            when(mode) {
+                Mode.SINGLE -> {
+                    this.selectedPosition = holder.adapterPosition
+                    onClickListener?.onClick(position, model)
+                    notifyDataSetChanged()
+                }
+                Mode.MULTI -> {
+                    if (this.selectedPositions.contains(model))
+                        this.selectedPositions.remove(model)
+                    else
+                        this.selectedPositions.add(model)
+
+                    onMultiSelectListener?.onMultiSelect(selectedPositions)
+                    notifyDataSetChanged()
+                }
             }
-            notifyDataSetChanged()
         }
 
+        when(mode) {
+            Mode.SINGLE -> {
+                if (selectedPosition == holder.adapterPosition)
+                    holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
+                        R.drawable.checked, 0)
+                else
+                    holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+            }
+            Mode.MULTI -> {
+                if (selectedPositions.contains(model))
+                    holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
+                        R.drawable.checked, 0)
+                else
+                    holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
 
-        if (selectedPosition == position)
-            holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
-                R.drawable.checked, 0)
-        else
-            holder.itemText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
-
+            }
+        }
     }
 
     fun setSelectedPosition(obj: T) {
@@ -82,7 +107,15 @@ internal class SearchSpinnerAdapter<T>(private val context: Context, items: Arra
         selectedPosition = idx
     }
 
+    fun setSelectedPosition(objs: List<T>) {
+        selectedPositions.clear()
+        selectedPositions.addAll(objs)
+    }
 
+
+    fun setOnMultiSelectListener(onMultiSelectListener: OnMultiSelectListener<T>) {
+        this.onMultiSelectListener = onMultiSelectListener
+    }
 
     fun setOnClickListener(onClickListener: OnClickListener<T>) {
         this.onClickListener = onClickListener
@@ -90,6 +123,10 @@ internal class SearchSpinnerAdapter<T>(private val context: Context, items: Arra
 
     interface OnClickListener<T> {
         fun onClick(position: Int, model: T)
+    }
+
+    interface OnMultiSelectListener<T> {
+        fun onMultiSelect(models: List<T>)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

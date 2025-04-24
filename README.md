@@ -46,15 +46,9 @@ dependencies {
 # Implementation
 Add the `xyz.mattjashworth.spinnertools.sheet.Spinner` to your layout XML file.
 
-Below are all the YesNoButton's xml attributes. You cannot currently set these programmatically.
+Below are all the Spinners's xml attributes
 ```XML
 <xyz.mattjashworth.spinnertools.sheet.Spinner
-    android:id="@+id/app_spinner"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="10dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginEnd="10dp"
     app:DismissWhenSelected="true"
     app:Title="Select Person"
     app:Searchable="true"
@@ -62,9 +56,8 @@ Below are all the YesNoButton's xml attributes. You cannot currently set these p
     app:backgroundColor="@color/purple_500"
     app:textColor="@color/white"
     app:hintTextColor="@color/red"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    app:mode="MULTI"
+    app:hint_bottomMargin="5dp"/>
 ```
 
 When binding to the view element specify the type. For example `ExampleObject`
@@ -74,6 +67,14 @@ data class ExampleObject(
     val age: String
 )
 ```
+If using Multi Select Mode your type should contain an id. For example `ExampleMultiSelect`
+```Kotlin
+data class ExampleMultiSelect(
+    val id: Int,
+    val name: String
+)
+```
+Find The view
 ```Kotlin
 val searchSpinner = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
 ```
@@ -92,12 +93,23 @@ searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<
 
 })
 ```        
+If using Multi Select Mode, set a different listener
+```Kotlin
+searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleMultiSelect> {
+    override fun onItemSelected(models: List<ExampleMultiSelect>) {
+        Snackbar.make(rootView, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
+    }
+})
+```
+### Note
+- When using Multi Select Mode the dialog will not dismiss after selecting an object. The XML attribute `DismissWhenSelected` is unused.
+- When using either Multi Select Mode or Single Select Mode you should use either String or a custom data type. String will automatically show in the sheet and as a selected item. A custom data type requires the XML attribute `DisplayMember` to be set. Failure will result in the string literal of the last property in your custom data type being used.
 
 # License
 ```
 MIT License
 
-Copyright (c) 2024 Matt J Ashworth
+Copyright (c) 2025 Matt J Ashworth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

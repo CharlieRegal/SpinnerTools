@@ -17,12 +17,14 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
+import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 import java.lang.reflect.Modifier
 
-internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?, searchable: Boolean) {
+internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: String, displayMember: String?, searchable: Boolean, mode: Mode) {
 
 
     private var onSearchSpinnerClickListener: OnSearchSpinnerClickListener<T>? = null
+    private var onSearchSpinnerMultiClickListener: OnSearchSpinnerMultiClickListener<T>? = null
 
     private lateinit var diag: BottomSheetDialog
     private lateinit var adapter: SearchSpinnerAdapter<T>
@@ -51,12 +53,16 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         val div = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         rcy.addItemDecoration(div)
 
-        adapter = SearchSpinnerAdapter<T>(context, filteredItems, displayMember)
+        adapter = SearchSpinnerAdapter<T>(mode, filteredItems, displayMember)
         adapter.setOnClickListener(object : SearchSpinnerAdapter.OnClickListener<T> {
             override fun onClick(position: Int, model: T) {
                 onSearchSpinnerClickListener?.onClick(position, model)
             }
-
+        })
+        adapter.setOnMultiSelectListener(object : SearchSpinnerAdapter.OnMultiSelectListener<T> {
+            override fun onMultiSelect( models: List<T>) {
+                onSearchSpinnerMultiClickListener?.onClick(models)
+            }
         })
 
         search.addTextChangedListener {
@@ -77,7 +83,7 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         rcy.layoutManager = llm
         rcy.adapter = adapter
 
-        diag.behavior.peekHeight = calculatePeekHeightPercentage(context, items.count())
+        diag.behavior.peekHeight = calculatePeekHeight(items.count())
 
         diag.behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         diag.behavior.isDraggable = true
@@ -98,6 +104,10 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
     }
 
     fun setSelectedObject(obj: T) {
+        adapter.setSelectedPosition(obj)
+    }
+
+    fun setSelectedObject(obj: List<T>) {
         adapter.setSelectedPosition(obj)
     }
 
@@ -123,6 +133,10 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
         this.onSearchSpinnerClickListener = onClickListener
     }
 
+    fun setOnMultiClickListener(onClickListener: OnSearchSpinnerMultiClickListener<T>) {
+        this.onSearchSpinnerMultiClickListener = onClickListener
+    }
+
     fun reflectionToString(obj: Any?): String {
         if(obj == null) {
             return "null"
@@ -141,5 +155,9 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
 
     interface OnSearchSpinnerClickListener<T> {
         fun onClick(position: Int, model: T)
+    }
+
+    interface OnSearchSpinnerMultiClickListener<T> {
+        fun onClick(model: List<T>)
     }
 }

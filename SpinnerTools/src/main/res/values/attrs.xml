@@ -11,6 +11,11 @@
 
         <attr name="hint_bottomMargin" format="dimension" />
 
+        <attr name="mode" format="enum">
+            <enum name="SINGLE" value="0" />
+            <enum name="MULTI" value="1" />
+        </attr>
+
     </declare-styleable>
 
 </resources>

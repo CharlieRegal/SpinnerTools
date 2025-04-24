@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
+import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
 @SuppressLint("PrivateResource")
 class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
@@ -32,11 +33,13 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var items = ArrayList<T>()
 
     private var selectedObject: T? = null
+    private var selectedObjects: List<T>? = null
 
     private var displayMember: String? = null
     private var title = "Select Item"
     private var searchable = false
     private var dismissWhenSelected = false
+    private var mode: Mode = Mode.SINGLE
 
 
     //colors
@@ -49,6 +52,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var type: Any? = null
 
     private var onItemSelectedListener: OnItemSelectedListener<T>? = null
+    private var onMultiItemSelectedListener: OnMultiItemSelectedListener<T>? = null
 
     init {
 
@@ -62,6 +66,9 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         backgroundColor = ta.getColor(R.styleable.Spinner_backgroundColor, ContextCompat.getColor(context, android.R.color.white))
         hintTextColor = ta.getColor(R.styleable.Spinner_hintTextColor, ContextCompat.getColor(context, android.R.color.black))
         textColor = ta.getColor(R.styleable.Spinner_textColor, ContextCompat.getColor(context, android.R.color.black))
+        ta.getInt(R.styleable.Spinner_mode, 0).let {
+            mode = Mode.fromInt(it)
+        }
 
         val hintBottomMargin = ta.getDimension(R.styleable.Spinner_hint_bottomMargin, 0f)
 
@@ -95,9 +102,11 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         selectedItem.setTextColor(textColor ?: context.getColor(android.R.color.black))
 
         setChildListener(rootView, OnClickListener {
-            val s = SpinnerSheet<T>(context, this.items, title, displayMember, searchable)
-            if (selectedObject != null)
-                s.setSelectedObject(selectedObject!!)
+            val s = SpinnerSheet<T>(context, this.items, title, displayMember, searchable, mode)
+            when (mode) {
+                Mode.SINGLE -> if (selectedObject != null) s.setSelectedObject(selectedObject!!)
+                Mode.MULTI -> if (selectedObjects != null && selectedObjects!!.isNotEmpty()) s.setSelectedObject(selectedObjects!!)
+            }
             s.setOnItemClickListener(object : SpinnerSheet.OnSearchSpinnerClickListener<T> {
                 override fun onClick(position: Int, model: T) {
 
@@ -135,6 +144,61 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
                 }
 
             })
+            s.setOnMultiClickListener(object : SpinnerSheet.OnSearchSpinnerMultiClickListener<T> {
+                override fun onClick(model: List<T>) {
+
+                    if (model.isNotEmpty() && model[0] is String) {
+
+                        val stringBuilder = StringBuilder()
+
+                        model.forEachIndexed { index, t ->
+                            if (index == model.count() - 1) stringBuilder.append(t.toString())
+                            else stringBuilder.append(t.toString() + ", ")
+                        }
+
+                        selectedItem.setText(stringBuilder.toString())
+                        selectedObjects = model
+
+                    } else {
+
+                        val stringBuilder = StringBuilder()
+
+                        if (model.isEmpty()) {
+                            selectedItem.text.clear()
+                            selectedObjects = null
+                            return
+                        }
+
+                        model.forEachIndexed { index, t ->
+
+                            val gson = Gson()
+                            val jsonStr = gson.toJson(t)
+
+                            val obj = JsonParser.parseString(jsonStr).asJsonObject
+
+                            val map = obj.asMap()
+                            val keys = map.keys
+
+                            if (!displayMember.isNullOrEmpty()) {
+                                if (index == model.count() - 1) stringBuilder.append(obj.get(displayMember).asString)
+                                else stringBuilder.append(obj.get(displayMember).asString + ", ")
+                            } else {
+                                if (index == model.count() - 1) stringBuilder.append(obj.get(keys.max()).asString)
+                                else stringBuilder.append(obj.get(keys.max()).asString + ", ")
+                            }
+                        }
+
+
+
+                        selectedObjects = model
+                        selectedItem.setText(stringBuilder.toString())
+
+                    }
+
+                    onMultiItemSelectedListener?.onItemSelected(model)
+                }
+
+            })
         })
 
 
@@ -149,7 +213,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedItem.setText(obj)
             selectedObject = obj
 
-        } else {
+        } else if (obj != null) {
 
             val jsonObj = JsonParser.parseString(jsonStr).asJsonObject
 
@@ -165,7 +229,61 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
             selectedObject = obj
             selectedItem.setText(res)
 
+        } else if (obj == null) {
+            selectedObject = null
+            selectedItem.text.clear()
         }
+    }
+
+    fun setSelectedItem(obj: List<T>) {
+        val gson = Gson()
+        val jsonStr = gson.toJson(obj)
+
+        if (obj[0] is String) {
+
+            val stringBuilder = StringBuilder()
+
+            obj.forEachIndexed { index, t ->
+                if (index == obj.count() - 1) stringBuilder.append(t.toString())
+                else stringBuilder.append(t.toString() + ", ")
+            }
+
+            selectedItem.setText(stringBuilder.toString())
+            selectedObjects = obj
+
+        } else {
+
+            val stringBuilder = StringBuilder()
+
+            obj.forEachIndexed { index, t ->
+
+                val gson = Gson()
+                val jsonStr = gson.toJson(t)
+
+                val Jobj = JsonParser.parseString(jsonStr).asJsonObject
+
+                val map = Jobj.asMap()
+                val keys = map.keys
+
+                if (!displayMember.isNullOrEmpty()) {
+                    if (index == obj.count() - 1) stringBuilder.append(Jobj.get(displayMember).asString)
+                    else stringBuilder.append(Jobj.get(displayMember).asString + ", ")
+                } else {
+                    if (index == obj.count() - 1) stringBuilder.append(Jobj.get(keys.max()).asString)
+                    else stringBuilder.append(Jobj.get(keys.max()).asString + ", ")
+                }
+            }
+
+
+
+            selectedObjects = obj
+            selectedItem.setText(stringBuilder.toString())
+
+        }
+    }
+
+    fun setMode(mode: Mode) {
+        this.mode = mode
     }
 
     fun getSelectedItem(): T? {
@@ -178,6 +296,14 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
     interface OnItemSelectedListener<T> {
         fun onItemSelected(model: T)
+    }
+
+    fun setOnMultiItemSelectedListener(onMultiItemSelectedListener: OnMultiItemSelectedListener<T>) {
+        this.onMultiItemSelectedListener = onMultiItemSelectedListener
+    }
+
+    interface OnMultiItemSelectedListener<T> {
+        fun onItemSelected(models: List<T>)
     }
 
     private fun setChildListener(parent: View, listener: OnClickListener) {

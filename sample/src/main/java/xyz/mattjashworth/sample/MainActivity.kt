@@ -8,10 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import xyz.mattjashworth.spinnertools.sheet.Spinner
 
 class MainActivity : AppCompatActivity() {
@@ -64,21 +60,35 @@ class MainActivity : AppCompatActivity() {
             )
 
 
-        val searchSpinner = findViewById<Spinner<String>>(R.id.app_spinner)
-        searchSpinner.setItems(arrayListOf("One", "Two", "Three", "Four", "Five", "Six"))
-        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<String> {
-            override fun onItemSelected(model: String) {
-                Snackbar.make(rootView, model, Snackbar.LENGTH_LONG).show()
-            }
+        val multiSelectData = arrayListOf(
+            ExampleMultiSelect(0, "Matt"),
+            ExampleMultiSelect(1, "Charlie"),
+            ExampleMultiSelect(2, "Andrew"),
+            ExampleMultiSelect(3, "Robert"),
+            ExampleMultiSelect(4, "Stephen"),
+            ExampleMultiSelect(5, "Stuart"),
+            ExampleMultiSelect(6, "Alfie"),
+            ExampleMultiSelect(7, "Jamie"),
+            ExampleMultiSelect(8, "Zoe"),
+            ExampleMultiSelect(9, "Jenny"),
+            ExampleMultiSelect(10, "Lauren"),
+            ExampleMultiSelect(11, "Sam"),
+            ExampleMultiSelect(12, "Julie")
+        )
 
+
+        val searchSpinner = findViewById<Spinner<ExampleMultiSelect>>(R.id.app_spinner)
+        searchSpinner.setItems(multiSelectData)
+        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleMultiSelect> {
+            override fun onItemSelected(model: ExampleMultiSelect) {
+                Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
+            }
         })
-
-        CoroutineScope(Dispatchers.IO).launch {
-            delay(10000)
-            runOnUiThread {
-                searchSpinner.setItems(arrayListOf("One"))
+        searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleMultiSelect> {
+            override fun onItemSelected(models: List<ExampleMultiSelect>) {
+                Snackbar.make(rootView, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
             }
-        }
+        })
 
 
 

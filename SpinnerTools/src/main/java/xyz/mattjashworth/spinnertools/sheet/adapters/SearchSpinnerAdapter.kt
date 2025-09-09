@@ -1,13 +1,10 @@
 package xyz.mattjashworth.spinnertools.sheet.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
@@ -36,32 +33,26 @@ internal class SearchSpinnerAdapter<T>(private val mode: Mode, items: ArrayList<
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val model: T = spinnerItems[position]
 
-        val gson = Gson()
-        val jsonStr = gson.toJson(model)
 
-        if (model is String) {
-
-            holder.itemText.text = model
-
+        val textToDisplay = if (model is String) {
+            model
         } else {
-
-            val obj = JsonParser.parseString(jsonStr).asJsonObject
-
-            val map = obj.asMap()
-            val keys = map.keys
-
-            var res = ""
-
             try {
-                if (member != null) res = obj.get(member).asString
-                else res = obj.get(keys.max()).asString
+                val kClass = model!!::class
+                val kProp = kClass.members.find { it.name == member }
+
+                if (kProp != null) {
+                    kProp.call(model)?.toString() ?: ""
+                } else {
+                    model.toString()
+                }
             } catch (ex: Exception) {
-                res = obj.get(keys.max()).asString
+                model.toString()
             }
-
-
-            holder.itemText.text = res
         }
+
+        holder.itemText.text = textToDisplay
+
 
         holder.itemView.setOnClickListener {
 

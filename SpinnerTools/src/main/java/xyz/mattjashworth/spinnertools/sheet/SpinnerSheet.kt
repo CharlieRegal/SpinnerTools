@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.Gson
-import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
 import xyz.mattjashworth.spinnertools.sheet.enums.Mode
@@ -26,18 +24,13 @@ internal class SpinnerSheet<T>(context: Context, items: ArrayList<T>, title: Str
     private var onSearchSpinnerClickListener: OnSearchSpinnerClickListener<T>? = null
     private var onSearchSpinnerMultiClickListener: OnSearchSpinnerMultiClickListener<T>? = null
 
-    private lateinit var diag: BottomSheetDialog
-    private lateinit var adapter: SearchSpinnerAdapter<T>
+    private var diag: BottomSheetDialog
+    private var adapter: SearchSpinnerAdapter<T>
 
     val a = items.clone()
     var filteredItems: ArrayList<T> = ArrayList(items.toList())
 
     init {
-
-        filteredItems = ArrayList(items.toList())
-        if (::adapter.isInitialized && adapter != null) {
-            adapter.notifyDataSetChanged()
-        }
 
         diag = BottomSheetDialog(context)
         val layoutInflater = LayoutInflater.from(context)

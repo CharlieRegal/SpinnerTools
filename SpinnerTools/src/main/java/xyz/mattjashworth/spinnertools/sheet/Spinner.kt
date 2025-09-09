@@ -8,27 +8,20 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColor
-import androidx.core.view.marginTop
-import androidx.core.view.setPadding
 import com.google.android.material.textfield.TextInputLayout
-import com.google.gson.Gson
-import com.google.gson.JsonParser
 import xyz.mattjashworth.spinnertools.R
-import xyz.mattjashworth.spinnertools.sheet.adapters.SearchSpinnerAdapter
 import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
 @SuppressLint("PrivateResource")
 class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
 
-    private lateinit var selectedItem: EditText
+    private var selectedItem: EditText
     private var card: CardView
     private var items = ArrayList<T>()
 
@@ -113,32 +106,25 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
                     if (dismissWhenSelected)
                         s.dismiss()
 
-                    val gson = Gson()
-                    val jsonStr = gson.toJson(model)
 
-                    if (model is String) {
-
-                        selectedItem.setText(model)
-                        selectedObject = model
-
+                    val textToDisplay = if (model is String) {
+                        model
                     } else {
-
-                        val obj = JsonParser.parseString(jsonStr).asJsonObject
-
-                        val map = obj.asMap()
-                        val keys = map.keys
-
-                        var res = ""
-
-                        if (!displayMember.isNullOrEmpty()) res =
-                            obj.get(displayMember).asString
-                        else res = obj.get(keys.max()).asString
-
-                        selectedObject = model
-                        selectedItem.setText(res)
-                        //selectedItem.text.clear()
-
+                        try {
+                            val kClass = model!!::class
+                            val kProp = kClass.members.find { it.name == displayMember }
+                            if (kProp != null) {
+                                kProp.call(model)?.toString() ?: ""
+                            } else {
+                                model.toString()
+                            }
+                        } catch (ex: Exception) {
+                            model.toString()
+                        }
                     }
+
+                    selectedItem.setText(textToDisplay)
+                    selectedObject = model
 
                     onItemSelectedListener?.onItemSelected(model)
                 }
@@ -153,7 +139,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
                         model.forEachIndexed { index, t ->
                             if (index == model.count() - 1) stringBuilder.append(t.toString())
-                            else stringBuilder.append(t.toString() + ", ")
+                            else stringBuilder.append("$t, ")
                         }
 
                         selectedItem.setText(stringBuilder.toString())
@@ -171,23 +157,15 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
                         model.forEachIndexed { index, t ->
 
-                            val gson = Gson()
-                            val jsonStr = gson.toJson(t)
+                            val kClass = model[index]!!::class
+                            val kProp = kClass.members.find { it.name == displayMember }
 
-                            val obj = JsonParser.parseString(jsonStr).asJsonObject
-
-                            val map = obj.asMap()
-                            val keys = map.keys
-
-                            if (!displayMember.isNullOrEmpty()) {
-                                if (index == model.count() - 1) stringBuilder.append(obj.get(displayMember).asString)
-                                else stringBuilder.append(obj.get(displayMember).asString + ", ")
+                            if (kProp != null) {
+                                stringBuilder.append("${kProp.call(model[index])?.toString() ?: ""}, ")
                             } else {
-                                if (index == model.count() - 1) stringBuilder.append(obj.get(keys.max()).asString)
-                                else stringBuilder.append(obj.get(keys.max()).asString + ", ")
+                                stringBuilder.append("${model[index].toString()}, ")
                             }
                         }
-
 
 
                         selectedObjects = model
@@ -205,81 +183,81 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     }
 
     fun setSelectedItem(obj: T) {
-        val gson = Gson()
-        val jsonStr = gson.toJson(obj)
-
-        if (obj is String) {
-
-            selectedItem.setText(obj)
-            selectedObject = obj
-
-        } else if (obj != null) {
-
-            val jsonObj = JsonParser.parseString(jsonStr).asJsonObject
-
-            val map = jsonObj.asMap()
-            val keys = map.keys
-
-            var res = ""
-
-            if (!displayMember.isNullOrEmpty()) res =
-                jsonObj.get(displayMember).asString
-            else res = jsonObj.get(keys.max()).asString
-
-            selectedObject = obj
-            selectedItem.setText(res)
-
+        val textToDisplay = if (obj is String) {
+            obj
         } else if (obj == null) {
+            null
+        } else {
+            try {
+                val kClass = obj!!::class
+                val kProp = kClass.members.find { it.name == displayMember }
+                if (kProp != null) {
+                    kProp.call(obj)?.toString() ?: ""
+                } else {
+                    obj.toString()
+                }
+            } catch (ex: Exception) {
+                obj.toString()
+            }
+        }
+
+        if (textToDisplay == null) {
             selectedObject = null
             selectedItem.text.clear()
+        } else {
+            when(mode) {
+                Mode.SINGLE -> selectedObject = obj
+                Mode.MULTI -> selectedObjects = listOf(obj)
+            }
+            selectedItem.setText(textToDisplay)
         }
     }
 
     fun setSelectedItem(obj: List<T>) {
-        val gson = Gson()
-        val jsonStr = gson.toJson(obj)
-
-        if (obj[0] is String) {
-
+        val textToDisplay = if (obj[0] is String) {
             val stringBuilder = StringBuilder()
 
             obj.forEachIndexed { index, t ->
                 if (index == obj.count() - 1) stringBuilder.append(t.toString())
-                else stringBuilder.append(t.toString() + ", ")
+                else stringBuilder.append("$t, ")
             }
-
-            selectedItem.setText(stringBuilder.toString())
-            selectedObjects = obj
-
+            stringBuilder.toString()
         } else {
 
             val stringBuilder = StringBuilder()
 
-            obj.forEachIndexed { index, t ->
-
-                val gson = Gson()
-                val jsonStr = gson.toJson(t)
-
-                val Jobj = JsonParser.parseString(jsonStr).asJsonObject
-
-                val map = Jobj.asMap()
-                val keys = map.keys
-
-                if (!displayMember.isNullOrEmpty()) {
-                    if (index == obj.count() - 1) stringBuilder.append(Jobj.get(displayMember).asString)
-                    else stringBuilder.append(Jobj.get(displayMember).asString + ", ")
+            try {
+                val kClass = obj[0]!!::class
+                val kProp = kClass.members.find { it.name == displayMember }
+                if (kProp != null) {
+                    obj.forEachIndexed { index, t ->
+                        if (index == obj.count() - 1) stringBuilder.append(
+                            kProp.call(t)?.toString() ?: ""
+                        )
+                        else stringBuilder.append(kProp.call(t)?.toString() + ", ")
+                    }
                 } else {
-                    if (index == obj.count() - 1) stringBuilder.append(Jobj.get(keys.max()).asString)
-                    else stringBuilder.append(Jobj.get(keys.max()).asString + ", ")
+                    obj.forEachIndexed { index, t ->
+                        if (index == obj.count() - 1) stringBuilder.append(t.toString())
+                        else stringBuilder.append("$t, ")
+                    }
                 }
+                stringBuilder.toString()
+            } catch (ex: Exception) {
+                obj.forEachIndexed { index, t ->
+                    if (index == obj.count() - 1) stringBuilder.append(t.toString())
+                    else stringBuilder.append("$t, ")
+                }
+                stringBuilder.toString()
             }
-
-
-
-            selectedObjects = obj
-            selectedItem.setText(stringBuilder.toString())
-
         }
+
+        when (mode) {
+            Mode.SINGLE -> selectedObject = obj[0]
+            Mode.MULTI -> selectedObjects = obj
+        }
+        selectedItem.setText(textToDisplay)
+
     }
 
     fun setMode(mode: Mode) {

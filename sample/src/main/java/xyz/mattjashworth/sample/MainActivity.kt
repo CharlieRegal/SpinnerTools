@@ -77,20 +77,21 @@ class MainActivity : AppCompatActivity() {
         )
 
 
-        val searchSpinner = findViewById<Spinner<ExampleMultiSelect>>(R.id.app_spinner)
-        searchSpinner.setItems(multiSelectData)
-        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleMultiSelect> {
-            override fun onItemSelected(model: ExampleMultiSelect) {
+        val searchSpinner = findViewById<Spinner<ExampleObject>>(R.id.app_spinner)
+        searchSpinner.setItems(data)
+        searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
+            override fun onItemSelected(model: ExampleObject) {
                 Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
             }
         })
-        searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleMultiSelect> {
-            override fun onItemSelected(models: List<ExampleMultiSelect>) {
+        searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleObject> {
+            override fun onItemSelected(models: List<ExampleObject>) {
                 Snackbar.make(rootView, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
             }
         })
 
 
+        searchSpinner.setSelectedItem(data[3])
 
 
     }

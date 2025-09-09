@@ -15,7 +15,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         app:DismissWhenSelected="true"
-        app:DisplayMember="name"
+        app:DisplayMember="nameAndAge"
         app:Searchable="true"
         app:Title="Select Person"
         app:backgroundColor="@color/purple_500"

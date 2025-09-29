@@ -4,14 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
+import android.graphics.PorterDuff
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import com.google.android.material.textfield.TextInputLayout
@@ -23,10 +24,32 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
     private var selectedItem: EditText
     private var card: CardView
-    private var items = ArrayList<T>()
 
-    private var selectedObject: T? = null
-    private var selectedObjects: List<T>? = null
+    private var _items = ArrayList<T>()
+    var itemsBinding: ArrayList<T> = _items
+    var itemsValueChanged: ((ArrayList<T>) -> Unit)? = null
+
+    private var _selectedObject: T? = null
+    var selectedObject: T?
+        get() = _selectedObject
+        set(value){
+            if(_selectedObject != value){
+                _selectedObject = value
+                selectedObjectValueChanged?.invoke(value)
+            }
+        }
+    var selectedObjectValueChanged: ((T?) -> Unit)? = null
+
+    private var _selectedObjects: List<T>? = null
+    var selectedObjects: List<T>?
+        get() = _selectedObjects
+        set(value){
+            if(_selectedObjects != value){
+                _selectedObjects = value
+                selectedObjectsValueChanged?.invoke(value)
+            }
+        }
+    var selectedObjectsValueChanged: ((List<T>?) -> Unit)? = null
 
     private var displayMember: String? = null
     private var title = "Select Item"
@@ -34,11 +57,11 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     private var dismissWhenSelected = false
     private var mode: Mode = Mode.SINGLE
 
-
     //colors
     private var backgroundColor: Int? = null
     private var hintTextColor: Int? = null
     private var textColor: Int? = null
+    private var iconColor: Int? = null
 
     private  var textInputLayout: TextInputLayout
 
@@ -59,6 +82,9 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         backgroundColor = ta.getColor(R.styleable.Spinner_backgroundColor, ContextCompat.getColor(context, android.R.color.white))
         hintTextColor = ta.getColor(R.styleable.Spinner_hintTextColor, ContextCompat.getColor(context, android.R.color.black))
         textColor = ta.getColor(R.styleable.Spinner_textColor, ContextCompat.getColor(context, android.R.color.black))
+        iconColor = ta.getColor(R.styleable.Spinner_iconColor, ContextCompat.getColor(context, android.R.color.black))
+
+
         ta.getInt(R.styleable.Spinner_mode, 0).let {
             mode = Mode.fromInt(it)
         }
@@ -67,9 +93,14 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
         ta.recycle()
 
-
         selectedItem = findViewById<EditText>(R.id.tv_spinner_selected)
         textInputLayout = findViewById<TextInputLayout>(R.id.tIL)
+
+        val defaultFallbackColor = ContextCompat.getColor(context, R.color.gray_600)
+        val colorToApply = iconColor ?: defaultFallbackColor
+        textInputLayout.setEndIconTintList(ColorStateList.valueOf(colorToApply))
+        textInputLayout.setEndIconTintMode(PorterDuff.Mode.SRC_IN)
+
         textInputLayout.addOnEditTextAttachedListener {
             it.editText?.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
@@ -95,10 +126,10 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         selectedItem.setTextColor(textColor ?: context.getColor(android.R.color.black))
 
         setChildListener(rootView, OnClickListener {
-            val s = SpinnerSheet<T>(context, this.items, title, displayMember, searchable, mode)
+            val s = SpinnerSheet<T>(context, this._items, title, displayMember, searchable, mode)
             when (mode) {
-                Mode.SINGLE -> if (selectedObject != null) s.setSelectedObject(selectedObject!!)
-                Mode.MULTI -> if (selectedObjects != null && selectedObjects!!.isNotEmpty()) s.setSelectedObject(selectedObjects!!)
+                Mode.SINGLE -> if (_selectedObject != null) s.setSelectedObject(_selectedObject!!)
+                Mode.MULTI -> if (_selectedObjects != null && _selectedObjects!!.isNotEmpty()) s.setSelectedObject(_selectedObjects!!)
             }
             s.setOnItemClickListener(object : SpinnerSheet.OnSearchSpinnerClickListener<T> {
                 override fun onClick(position: Int, model: T) {
@@ -131,49 +162,49 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
             })
             s.setOnMultiClickListener(object : SpinnerSheet.OnSearchSpinnerMultiClickListener<T> {
-                override fun onClick(model: List<T>) {
+                override fun onClick(models: List<T>) {
 
-                    if (model.isNotEmpty() && model[0] is String) {
+                    if (models.isNotEmpty() && models[0] is String) {
 
                         val stringBuilder = StringBuilder()
 
-                        model.forEachIndexed { index, t ->
-                            if (index == model.count() - 1) stringBuilder.append(t.toString())
+                        models.forEachIndexed { index, t ->
+                            if (index == models.count() - 1) stringBuilder.append(t.toString())
                             else stringBuilder.append("$t, ")
                         }
 
                         selectedItem.setText(stringBuilder.toString())
-                        selectedObjects = model
+                        selectedObjects = models
 
                     } else {
 
                         val stringBuilder = StringBuilder()
 
-                        if (model.isEmpty()) {
+                        if (models.isEmpty()) {
                             selectedItem.text.clear()
                             selectedObjects = null
                             return
                         }
 
-                        model.forEachIndexed { index, t ->
+                        models.forEachIndexed { index, t ->
 
-                            val kClass = model[index]!!::class
+                            val kClass = models[index]!!::class
                             val kProp = kClass.members.find { it.name == displayMember }
 
                             if (kProp != null) {
-                                stringBuilder.append("${kProp.call(model[index])?.toString() ?: ""}, ")
+                                stringBuilder.append("${kProp.call(models[index])?.toString() ?: ""}, ")
                             } else {
-                                stringBuilder.append("${model[index].toString()}, ")
+                                stringBuilder.append("${models[index].toString()}, ")
                             }
                         }
 
 
-                        selectedObjects = model
+                        selectedObjects = models
                         selectedItem.setText(stringBuilder.toString())
 
                     }
 
-                    onMultiItemSelectedListener?.onItemSelected(model)
+                    onMultiItemSelectedListener?.onItemSelected(models)
                 }
 
             })
@@ -202,18 +233,19 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         }
 
         if (textToDisplay == null) {
-            selectedObject = null
+            _selectedObject = null
             selectedItem.text.clear()
         } else {
             when(mode) {
-                Mode.SINGLE -> selectedObject = obj
-                Mode.MULTI -> selectedObjects = listOf(obj)
+                Mode.SINGLE -> _selectedObject = obj
+                Mode.MULTI -> _selectedObjects = listOf(obj)
             }
             selectedItem.setText(textToDisplay)
         }
     }
 
     fun setSelectedItem(obj: List<T>) {
+        if(obj.isEmpty()) return
         val textToDisplay = if (obj[0] is String) {
             val stringBuilder = StringBuilder()
 
@@ -253,8 +285,8 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
         }
 
         when (mode) {
-            Mode.SINGLE -> selectedObject = obj[0]
-            Mode.MULTI -> selectedObjects = obj
+            Mode.SINGLE -> _selectedObject = obj[0]
+            Mode.MULTI -> _selectedObjects = obj
         }
         selectedItem.setText(textToDisplay)
 
@@ -265,7 +297,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     }
 
     fun getSelectedItem(): T? {
-        return selectedObject
+        return _selectedObject
     }
 
     fun setOnItemSelectedListener(onItemSelectedListener: OnItemSelectedListener<T>) {
@@ -297,8 +329,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
     }
 
     fun setItems(_items: ArrayList<T>) {
-        items = _items
-
+        this@Spinner._items = _items
     }
 
     fun setDisplayMember(id: String) {

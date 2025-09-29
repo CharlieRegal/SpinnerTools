@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id ("maven-publish")
+    kotlin("kapt") version "2.0.0"
 }
 
 android {
@@ -26,6 +27,12 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+        dataBinding = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8

@@ -33,7 +33,9 @@
                 android:clickable="true"
                 android:focusable="false"
                 android:hint="Select Person"
+                app:endIconMode="custom"
                 app:endIconDrawable="@drawable/spinner_arrow_down"
+                app:endIconTint="@color/gray_400"
                 app:hintAnimationEnabled="true"
                 app:hintEnabled="true"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -53,7 +55,7 @@
                     android:gravity="center_vertical"
                     android:padding="2dp"
                     android:textSize="16sp"
-                    app:drawableEndCompat="@drawable/spinner_arrow_down" />
+                    />
 
 
             </com.google.android.material.textfield.TextInputLayout>

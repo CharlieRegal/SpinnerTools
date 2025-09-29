@@ -1,30 +1,40 @@
 package xyz.mattjashworth.sample
 
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.databinding.DataBindingUtil
+import xyz.mattjashworth.sample.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import xyz.mattjashworth.spinnertools.sheet.Spinner
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding : ActivityMainBinding
+
+    var data : ArrayList<ExampleObject> = ArrayList()
+
+    var multiSelectData : List<ExampleMultiSelect> = ArrayList()
+
+    var selectedItem : ExampleObject? = null
+    var selectedItems : List<ExampleObject>? =null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.fragment = this
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val rootView = findViewById<View>(R.id.main)
+
 
         val ex = ExampleObject("Test", "Should Be Working")
         ex.ID = 5
 
-        val data = arrayListOf(
+        data = arrayListOf(
             ex,
             ExampleObject("Mohammed", "35"),
             ExampleObject("Charlie", "24"),
@@ -60,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             )
 
 
-        val multiSelectData = arrayListOf(
+        multiSelectData = arrayListOf(
             ExampleMultiSelect(0, "Matt"),
             ExampleMultiSelect(1, "Charlie"),
             ExampleMultiSelect(2, "Andrew"),
@@ -81,18 +91,17 @@ class MainActivity : AppCompatActivity() {
         searchSpinner.setItems(data)
         searchSpinner.setOnItemSelectedListener(object : Spinner.OnItemSelectedListener<ExampleObject> {
             override fun onItemSelected(model: ExampleObject) {
-                Snackbar.make(rootView, model.name, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, model.name, Snackbar.LENGTH_LONG).show()
             }
         })
         searchSpinner.setOnMultiItemSelectedListener(object : Spinner.OnMultiItemSelectedListener<ExampleObject> {
             override fun onItemSelected(models: List<ExampleObject>) {
-                Snackbar.make(rootView, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, models.count().toString() + " Selected", Snackbar.LENGTH_LONG).show()
             }
         })
 
 
         searchSpinner.setSelectedItem(data[3])
-
 
     }
 }

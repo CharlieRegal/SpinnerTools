@@ -20,7 +20,7 @@ import xyz.mattjashworth.spinnertools.R
 import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
 @SuppressLint("PrivateResource")
-class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
+class Spinner<T> @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attributeSet, defStyleAttr) {
 
     private var selectedItem: EditText
     private var card: CardView
@@ -74,7 +74,7 @@ class Spinner<T>(context: Context, attributeSet: AttributeSet) : LinearLayout(co
 
         val root = inflate(context, R.layout.spinner, this)
 
-        val ta: TypedArray = getContext().obtainStyledAttributes(attributeSet, R.styleable.Spinner)
+        val ta: TypedArray = getContext().obtainStyledAttributes(attributeSet, R.styleable.Spinner, defStyleAttr, 0)
         displayMember = ta.getString(R.styleable.Spinner_DisplayMember) ?: ""
         title = ta.getString(R.styleable.Spinner_Title) ?: ""
         searchable = ta.getBoolean(R.styleable.Spinner_Searchable, false)

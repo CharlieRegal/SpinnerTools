@@ -375,18 +375,18 @@ class Spinner<T> @JvmOverloads constructor(context: Context, attributeSet: Attri
             )
         )
 
-        textInputLayout.setDefaultHintTextColor(colorList)
-        textInputLayout.hintTextColor = ColorStateList.valueOf(colorId)
-        textInputLayout.defaultHintTextColor = ColorStateList.valueOf(colorId)
+        textInputLayout.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(context,colorId)))
+        textInputLayout.hintTextColor = ColorStateList.valueOf(ContextCompat.getColor(context,colorId))
+        textInputLayout.defaultHintTextColor = ColorStateList.valueOf(ContextCompat.getColor(context,colorId))
     }
 
     fun setTextColorValue(colorId : Int) {
         textColor = colorId
-        textInputLayout.editText?.setTextColor(colorId)
+        textInputLayout.editText?.setTextColor(ContextCompat.getColor(context,colorId))
     }
     fun setIconColorValue(colorId : Int) {
         iconColor = colorId
-        textInputLayout.setEndIconTintList(ColorStateList.valueOf(colorId))
+        textInputLayout.setEndIconTintList(ColorStateList.valueOf(ContextCompat.getColor(context,colorId)))
         textInputLayout.setEndIconTintMode(PorterDuff.Mode.SRC_IN)
     }
 }

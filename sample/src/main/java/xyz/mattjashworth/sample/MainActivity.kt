@@ -1,5 +1,4 @@
 package xyz.mattjashworth.sample
-
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -110,8 +109,8 @@ class MainActivity : AppCompatActivity() {
         searchSpinner.setSelectedItem(data[3])
 
         val programmaticSpinner = Spinner<String>(this,null)
-        programmaticSpinner.setBackgroundColorValue(xyz.mattjashworth.spinnertools.R.color.light_blue_600)
-        programmaticSpinner.setTextAndIconColor(xyz.mattjashworth.spinnertools.R.color.red_600)
+        programmaticSpinner.setBackgroundColorValue(R.color.red)
+        programmaticSpinner.setTextAndIconColor(R.color.purple_500)
         programmaticSpinner.setDismissWhenSelected(true)
         programmaticSpinner.setSelectMode(Mode.SINGLE)
         programmaticSpinner.setIsSearchable(true)

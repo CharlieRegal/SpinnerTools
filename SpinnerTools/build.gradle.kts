@@ -50,7 +50,7 @@ android {
                     from(components["release"])
                     groupId = "xyz.mattjashworth.spinnertools"
                     artifactId = "SpinnerTools"
-                    version = "1.4.6"
+                    version = "1.4.7"
                 }
             }
         }

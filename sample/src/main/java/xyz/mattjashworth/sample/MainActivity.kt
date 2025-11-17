@@ -5,17 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.marginStart
 import androidx.databinding.DataBindingUtil
 import xyz.mattjashworth.sample.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import xyz.mattjashworth.spinnertools.sheet.Spinner
+import xyz.mattjashworth.spinnertools.sheet.enums.Mode
 
 class MainActivity : AppCompatActivity() {
 
@@ -112,13 +110,18 @@ class MainActivity : AppCompatActivity() {
         searchSpinner.setSelectedItem(data[3])
 
         val programmaticSpinner = Spinner<String>(this,null)
+        programmaticSpinner.setBackgroundColorValue(xyz.mattjashworth.spinnertools.R.color.light_blue_600)
+        programmaticSpinner.setTextAndIconColor(xyz.mattjashworth.spinnertools.R.color.red_600)
+        programmaticSpinner.setDismissWhenSelected(true)
+        programmaticSpinner.setSelectMode(Mode.SINGLE)
+        programmaticSpinner.setIsSearchable(true)
         programmaticSpinner.id = View.generateViewId()
 
         val params = ViewGroup.LayoutParams(MATCH_PARENT,WRAP_CONTENT)
         programmaticSpinner.layoutParams = params
 
-        programmaticSpinner.setItems(data.map { it.name }.toCollection(ArrayList()))
-        programmaticSpinner.setTitle("Programmatic Spinner")
+        programmaticSpinner.setItems(data.map { it.nameAndAge }.toCollection(ArrayList()))
+        programmaticSpinner.setTitle("Programmatic Spinner | SINGLE")
 
         binding.main.addView(programmaticSpinner)
 

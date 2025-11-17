@@ -8,7 +8,6 @@ import android.graphics.PorterDuff
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -355,7 +354,13 @@ class Spinner<T> @JvmOverloads constructor(context: Context, attributeSet: Attri
 
     fun setBackgroundColorValue(colorId : Int) {
         backgroundColor = colorId
-        card.setCardBackgroundColor(colorId)
+        card.setCardBackgroundColor(ContextCompat.getColor(context,colorId))
+    }
+
+    fun setTextAndIconColor(colorId: Int){
+        setHintColorValue(colorId)
+        setTextColorValue(colorId)
+        setIconColorValue(colorId)
     }
 
     fun setHintColorValue(colorId : Int) {
@@ -377,9 +382,7 @@ class Spinner<T> @JvmOverloads constructor(context: Context, attributeSet: Attri
 
     fun setTextColorValue(colorId : Int) {
         textColor = colorId
-
         textInputLayout.editText?.setTextColor(colorId)
-        selectedItem.setTextColor(colorId)
     }
     fun setIconColorValue(colorId : Int) {
         iconColor = colorId

@@ -1,9 +1,17 @@
 package xyz.mattjashworth.sample
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.marginStart
 import androidx.databinding.DataBindingUtil
 import xyz.mattjashworth.sample.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
@@ -103,5 +111,23 @@ class MainActivity : AppCompatActivity() {
 
         searchSpinner.setSelectedItem(data[3])
 
+        val programmaticSpinner = Spinner<String>(this,null)
+        programmaticSpinner.id = View.generateViewId()
+
+        val params = ViewGroup.LayoutParams(MATCH_PARENT,WRAP_CONTENT)
+        programmaticSpinner.layoutParams = params
+
+        programmaticSpinner.setItems(data.map { it.name }.toCollection(ArrayList()))
+        programmaticSpinner.setTitle("Programmatic Spinner")
+
+        binding.main.addView(programmaticSpinner)
+
+        val constraintLayout = binding.main
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.connect(programmaticSpinner.id,ConstraintSet.TOP,binding.appSpinner.id, ConstraintSet.BOTTOM)
+        constraintSet.connect(programmaticSpinner.id,ConstraintSet.START,binding.main.id, ConstraintSet.START)
+        constraintSet.connect(programmaticSpinner.id,ConstraintSet.END,binding.main.id, ConstraintSet.END)
+        constraintSet.applyTo(constraintLayout)
     }
 }

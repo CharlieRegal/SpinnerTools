@@ -341,4 +341,49 @@ class Spinner<T> @JvmOverloads constructor(context: Context, attributeSet: Attri
         this.textInputLayout.hint = title
     }
 
+    fun setDismissWhenSelected(value : Boolean) {
+        dismissWhenSelected = value
+    }
+
+    fun setSelectMode(inMode : Mode) {
+        mode = inMode
+    }
+
+    fun setIsSearchable(value : Boolean) {
+        searchable = value
+    }
+
+    fun setBackgroundColorValue(colorId : Int) {
+        backgroundColor = colorId
+        card.setCardBackgroundColor(colorId)
+    }
+
+    fun setHintColorValue(colorId : Int) {
+        hintTextColor = colorId
+
+        val colorList = ColorStateList(
+            arrayOf(
+                intArrayOf()
+            ),
+            intArrayOf(
+                colorId
+            )
+        )
+
+        textInputLayout.setDefaultHintTextColor(colorList)
+        textInputLayout.hintTextColor = ColorStateList.valueOf(colorId)
+        textInputLayout.defaultHintTextColor = ColorStateList.valueOf(colorId)
+    }
+
+    fun setTextColorValue(colorId : Int) {
+        textColor = colorId
+
+        textInputLayout.editText?.setTextColor(colorId)
+        selectedItem.setTextColor(colorId)
+    }
+    fun setIconColorValue(colorId : Int) {
+        iconColor = colorId
+        textInputLayout.setEndIconTintList(ColorStateList.valueOf(colorId))
+        textInputLayout.setEndIconTintMode(PorterDuff.Mode.SRC_IN)
+    }
 }
